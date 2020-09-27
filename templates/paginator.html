@@ -1,0 +1,23 @@
+<div align="center" style="margin: 20px 0px;">
+    <!-- <div class="ui pagination menu"> -->
+    <div class="ui circular labels">
+        <!-- 前へ の部分 -->
+        {% if page_obj.has_previous %}
+        <a class="ui label" href="?page={{ page_obj.previous_page_number }}"><i class="angle left icon"></i></a>
+        {% endif %}
+
+        <!-- 数字の部分 -->
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="ui label">{{ num }}</span>
+        {% else %}
+        <a class="ui label" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        <!-- 次へ の部分 -->
+        {% if page_obj.has_next %}
+        <a class="ui label" href="?page={{ page_obj.next_page_number }}"><i class="angle right icon"></i></a>
+        {% endif %}
+    </div>
+</div>

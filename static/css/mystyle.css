@@ -1,0 +1,41 @@
+/* @font-face {
+	font-family: 'RictyDiminished-Regular';
+	src: url('../fonts/RictyDiminished-Regular.ttf') format('truetype');
+} */
+
+.sans-serif {
+  font-family:"游ゴシック Medium",YuGothic,YuGothicM,"Hiragino Kaku Gothic ProN","Hiragino Kaku Gothic Pro",メイリオ,Meiryo,sans-serif;
+}
+
+#following_button {
+  position: fixed;
+  bottom: 15px;
+  right: 20px;
+  
+  border-radius: 30px;
+  border: 0px;
+  width: 60px;
+  height: 60px;
+  background-color: #1da1f2;
+}
+
+/* Tooltip */
+.tooltip::after {
+  content: 'Copied!';
+  background: #555;
+  display: inline-block;
+  color: #fff;
+  border-radius: .4rem;
+  position: absolute;
+  left: 61%;
+  bottom: -.8rem;
+  transform: translate(-50%, 0);
+  font-size: .75rem;
+  padding: 4px 10px 6px 10px;
+  animation: fade-tooltip .5s 1s 1 forwards;
+}
+
+/* Animation */
+@keyframes fade-tooltip {
+to { opacity: 0; }
+}

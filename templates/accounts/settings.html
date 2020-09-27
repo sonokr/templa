@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block page_title %}Setting - てんぷら{% endblock %}
+
+{% block content %}
+<div class="ui container" style="margin: 20px 0;">
+  <div class="ui info message">
+    <span>設定はまだ未実装です．<br>
+    将来的には基本的な情報の変更と，アカウントの削除を可能にしたいと考えています．<br>
+  </div>
+  <div class="ui form">
+    <div class="disabled field">
+      <label>名前</label>
+      <input placeholder="{{ request.user.first_name }}" type="text" disabled="" tabindex="-1">
+    </div>
+    <div class="disabled field">
+      <label>スクリーンネーム</label>
+      <input placeholder="{{ request.user.username }}" type="text" disabled="" tabindex="-1">
+    </div>
+    <div class="disabled field">
+      <label>自己紹介</label>
+      <textarea rows="4" placeholder="{{ request.user.description }}"></textarea>
+    </div>
+    <button class="fluid ui black basic button" style="margin-top: 30px;" onclick="location.href='{% url 'accounts:logout' %}'">ログアウト</button>
+    <button class="fluid ui negative basic button" style="margin-top: 40px;" onclick="location.href='{% url 'accounts:adelete' %}'">アカウント削除</button>
+  </div>
+</div>
+{% endblock %}

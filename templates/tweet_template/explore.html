@@ -1,0 +1,29 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load humanize %} 
+{% load utility %}
+
+{% block page_title %}Search Result - てんぷら{% endblock %} 
+
+{% block extra_css %}
+{% endblock %} 
+
+{% block content %}
+<div
+    class="ui segment"
+    style="margin: 0px;border: 0px;"
+>
+    <form id="form" action="{% url 'tweet_template:search' %}" method="GET">
+        <div class="ui action fluid input">
+                <input type="text" name="query" placeholder="Search...">
+                <button type="submit" class="ui icon button">
+                <i class="search icon"></i>
+                </button>
+        </div>
+    </form>
+</div>
+{% endblock %} 
+
+{% block extra_js %}
+<script src="{% static 'js/myscript.js' %}"></script>
+{% endblock %}

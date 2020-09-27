@@ -1,0 +1,247 @@
+<!doctype html>
+{% load static %}
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>{% block page_title %}{% endblock %}</title>
+
+    {# --- css --- #}
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/semantic/semantic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/twitter_like.css' %}">
+    <link rel="stylesheet" href="{% static 'css/search_box.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body>.container {
+            height: 100%;
+        }
+
+        footer {
+            color: #E5EAEB;
+            background-color: #fdfdfb;
+        }
+
+        .hidden.menu {
+            display: none;
+        }
+
+        html {
+            max-width: 780px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .twPc-bg {
+            background-image: url("{{ request.user.bg_url }}");
+            background-position: 0 50%;
+            background-size: 100% auto;
+            border-bottom: 1px solid #e1e8ed;
+            /* border-radius: 4px 4px 0 0; */
+            height: 95px;
+            width: 100%;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="pushable" ontouchstart>
+    {% include 'tweet_template/create_modal.html' %}
+    {% include 'tweet_template/delete_modal.html' %}
+    <div class="ui sidebar vertical menu">
+        <div style="margin: 30px 30px;">
+            <h4 class="ui horizontal divider header">
+                てんぷら
+            </h4>
+            {% if user.is_authenticated %}
+            <div class="ui middle aligned animated list">
+                <div class="item">
+                    <div class="ui avatar image">
+                        <i class="user circle icon"></i>
+                    </div>
+                    <div class="content">
+                        <a class="header"
+                        style="color: #212121;"
+                        href="{% url 'accounts:profile' request.user %}">プロフィール</a>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="ui avatar image">
+                        <i class="cog icon"></i>
+                    </div>
+                    <div class="content">
+                        <a class="header"
+                        style="color: #212121;"
+                        href="{% url 'accounts:settings' %}">設定</a>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="ui avatar image">
+                        <i class="sign-out icon"></i>
+                    </div>
+                    <div class="content">
+                        <a class="header"
+                        style="color: #212121;"
+                        href="{% url 'accounts:logout' %}">ログアウト</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div>
+                <div>何はともあれ，</div>
+                <button onclick="location.href='{% url 'social:begin' 'twitter' %}?next={% url 'tweet_template:index' %}'" class="ui inverted primary button">Twitterでログイン</button>
+                <div>してね！</div>
+            </div>
+            {% endif %}
+
+            <h4 class="ui horizontal divider header">
+                KNKDEV.com
+            </h4>
+            <div class="ui middle aligned animated list">
+                <div class="ui avatar image">
+                    <i class="sign-out icon"></i>
+                </div>
+                <div class="content">
+                    <a class="header"
+                    style="color: #212121;"
+                    href="https://knkdev.com/karuta">めい言かるたジェネレーター</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pusher">
+        <div class="ui segment"
+            style="background-color: #fff;
+                    padding: 4px 0px;
+                    -webkit-box-shadow: 0 0 0 0;
+                    box-shadow: 0 0 0 0;
+                    border: 0px;
+                    margin: 0.9rem 1rem 0.7rem 1rem;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;">
+            <div id="js-sidebar" class="item"><i style="color: #808080;" class="bars icon"></i></div>
+            <a href="{% url 'tweet_template:index' %}">
+                <h3 class="ui center aligned header" style="font-family: 'Nanum Pen Script', cursive;">
+                    Tempura
+                </h3>
+            </a>
+            <a href="{% url 'tweet_template:explore' %}" style="color: #919191;">
+                <i class="search icon"></i>
+            </a>
+        </div>
+
+        <div style="background: #fff;">
+            {% block content %}{% endblock %}
+        </div>
+
+        <button id="following_button"><i class="twitter icon" style="margin: 0px;color: #ffffff;font-size: 2rem;"></i></button>
+
+    </div>
+
+    <footer class="small" style="padding: 60px 0px 60px 0px;">
+        <div class="social-button" align="center">
+            <a class="moodaal footer-font" href="#inline-privacy"
+                style="font-size: 11px;color: #000000;text-align: center;">利用規約</a><br>
+            <a class="moodaal footer-font" href="#inline-privacy"
+                style="font-size: 11px;color: #000000;text-align: center;">プライバシーポリシー</a><br>
+            <a class="footer-font" href="https://forms.gle/Fhc3Z91hsQC5RnPZ9" target="_blank"
+                style="font-size: 11px;color: #000000;text-align: center;">お問い合わせ</a>
+        </div>
+
+        <div align="center" class="copyright"
+            style="font-size: 12px;color: #000000;text-align: center;margin-top: 30px;">
+            &copy; 2020 KNKDEB.com
+        </div>
+    </footer>
+
+    {# --- js --- #}
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/common.js' %}"></script>
+    <script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <script>
+        $('.menu .item').tab();
+
+        $('#js-sidebar').click(function() {
+            $('.ui.sidebar').sidebar('toggle');
+        });
+
+        const bukumaButtons = document.getElementsByClassName(
+            'twitter-heart'
+        );
+
+        for (const button of bukumaButtons) {
+            button.addEventListener('click', () => {
+                event.preventDefault();
+                var burl = button.href;
+                var pk = button.id.replace(/[^0-9]/g, '');
+                console.log(pk);
+                $.ajax({
+                    type: "GET",
+                    url: burl,
+                    contentType: 'application/json'
+                })
+                .done(function (data) {
+                    if (data.result == 1) {  // ブクマ追加
+                        var old_count = parseInt($('#bukuma_count'+pk).text(), 10);
+                        $('span#bukuma_count'+pk).each(function (i, o) {
+                            $(o).addClass("on");
+                            $(o).text(old_count + 1);
+                        });
+                        $("span#bukuma_icon"+pk).each(function (i, o) {
+                            $(o).addClass("on");
+                        });
+                    } else {  // ブクマ削除
+                        var old_count = parseInt($('#bukuma_count'+pk).text(), 10);
+                        $('span#bukuma_count'+pk).each(function (i, o) {
+                            $(o).removeClass("on");
+                            $(o).text(old_count - 1);
+                        });
+                        $("span#bukuma_icon"+pk).each(function (i, o) {
+                            $(o).removeClass("on");
+                        });
+                    }
+                })
+                .fail(function (data) {
+                    console.log('失敗')
+                })
+            });
+        }
+
+        const copyButtons = document.getElementsByClassName(
+            'twitter-copy'
+        );
+
+        for (const button of copyButtons) {
+            button.addEventListener('click', () => {
+                event.preventDefault();
+                var pk = button.id.replace(/[^0-9]/g, '');
+                const clipboard = new ClipboardJS('#copy'+pk);
+                clipboard.on('success', function(e) {
+                    showTooltip(e.trigger);
+                });
+            });
+            button.addEventListener('mouseleave', clearTooltip);
+        }
+
+        function clearTooltip(e){
+            e.currentTarget.setAttribute('class','twitter-copy');
+        }
+
+        // Add .tooltip class when it's clicked
+        function showTooltip(elem){
+            elem.setAttribute('class','twitter-copy tooltip');
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

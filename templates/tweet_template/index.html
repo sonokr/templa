@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load utility %}
+
+{% block page_title %}Home - てんぷら{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="ui container" 
+     style="background-image: url('{{ request.user.bg_url }}');
+            margin: 0! important;
+            background-position: 0 50%;
+            background-size: 100% auto;
+            height: 120px;
+            width: 100%;">
+    <div align="center" 
+         style="backdrop-filter:blur(50px);
+                -webkit-backdrop-filter:blur(50px);
+                height: 120px;
+                width: 100%;
+                position: relative;">
+        <div style="position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translateY(-50%) translateX(-50%);
+                    -webkit-transform: translateY(-50%) translateX(-50%);">
+            <div style="display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-bottom: 10px;">
+                <figure style="border-radius: 50%;
+                            width: 45px;
+                            height: 45px;
+                            margin: 0px 10px 0px 0px;">
+                    <img style="border-radius: 50%;
+                                width: 45px;
+                                height: 45px;" 
+                        src="{{ request.user.icon_url }}" />
+                </figure>
+                <div style="margin-right: 10px;transform: translateY(2px);">
+                    <span style="font-size: 20px;color: #181818;text-align: center;">{{ request.user.first_name }}</span>
+                    <div style="font-size: 10px;color: #181818;text-align: center;margin-top: -5px;">@{{ request.user.username }}</div>
+                </div>
+            </div>
+
+            <div style="display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-bottom: 10px;">
+                <button onclick="location.href='{% url 'accounts:profile' request.user %}'" 
+                        style="border: 1px solid #181818;
+                            border-radius: 3px;
+                            background: transparent;
+                            color: #181818;
+                            font-size: 14px;
+                            margin-right: 6px;
+                            height: 2.1em; 
+                            width: 8.5rem;">プロフィール</button>
+                <button style="border: 1px solid #181818;
+                            border-radius: 3px;
+                            background: transparent;
+                            color: #181818;
+                            font-size: 14px;
+                            height: 2.1em;
+                            width: 8.5rem;"
+                        id="t_create">新しく作る</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div style="background-color: #ececed;">
+<div class="ui container" style="padding: 30px 0;">
+  <h2 class="ui header" style="margin: 0 20px;">
+    てんぷら
+    <div class="sub header">ツイートテンプレート共有サービス</div>
+  </h2>
+    <p style="color: #000000;margin: 20px 20px 0px 20px;">
+        このサービスは，
+        <ol class="ui list" style="color: #000000;margin: 10px 60px;">
+            <li value="*">流行りのツイートをテンプレートとして投稿できます．</li>
+            <li value="*">お気に入りのツイートはブクマに登録してすぐにツイートできます．</li>
+        </ol>
+    </p>
+    <div align="center">
+        <p style="font-size: 40px;margin: 0px 0px 12px 0px;">
+            <i class="angle double down icon" style="color: #000000;"></i>
+        </p>
+        <button onclick="location.href='{% url 'social:begin' 'twitter' %}?next={% url 'tweet_template:index' %}'" class="ui inverted primary button">Twitterでログイン</button>
+    </div>
+</div>
+</div>
+{% endif %}
+
+<div style="background: #fff;">
+    <div class="ui blue two item secondary pointing menu">
+        <a class="active item" data-tab="first">
+            ランキング
+        </a>
+        <a class="item" data-tab="second">
+            新着
+        </a>
+    </div>
+</div>
+<div class="ui tab segment active" data-tab="first" style="margin: 0px; border: 0px;">
+    <div class="twitter__container">
+    <div class="twitter__contents">
+    {% for item in templates|dictsortreversed:"rank" %}
+    <div class="twitter__block">
+        <figure>
+            <a href="{% url 'accounts:profile' item.author %}"><img src="{{ item.author.icon_url }}" /></a>
+        </figure>
+        <div class="twitter__block-text">
+            <div class="name">{{ item.name }}<span class="name_reply">by @{{ item.author.username }}</span></div>
+            <div class="date">{{ item.create_date|naturaltime }}</div>
+            <div class="text">
+                <span id="copy_target{{ item.pk }}">{{ item.content|linebreaksbr }}</span>
+                <div style="margin-top: 8px;">
+                    <span style="color:#1c95e0; margin-top: 20px;">
+                        {% for ht in item.hashtag.all %}
+                            {{ ht.name }}&ensp;
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+            <div class="twitter__icon">
+                {% if user.is_authenticated %}
+                    {% set isBreak = False %}
+                    {% if request.user.bukuma.all|length == 0 %}
+                        <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                            <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                                id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                        </a>
+                    {% else %}
+                        {% for b in request.user.bukuma.all %}
+                            {% if b.pk == item.pk %}
+                                <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart"> 
+                                    <span id="bukuma_icon{{item.pk}}" class="on">
+                                        <i class="bookmark icon"></i>
+                                    </span>
+                                    <span id="bukuma_count{{item.pk}}" class="on">
+                                        {{ item.customuser_set.all|length }}
+                                    </span>
+                                </a>
+                                {% set isBreak = True %}
+                            {% elif forloop.last %}
+                                {% if not isBreak %}
+                                    <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                                        <span id="bukuma_icon{{item.pk}}">
+                                            <i class="bookmark icon"></i>
+                                        </span>
+                                        <span id="bukuma_count{{item.pk}}">
+                                            {{ item.customuser_set.all|length }}
+                                        </span>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    <a id="" href="#" class="link twitter-heart" data-content="ログインしてください．">
+                        <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                            id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                    </a>
+                {% endif %}
+                <a class="twitter-loop" href="https://twitter.com/share?url=_&hashtags=_&text={{ item.content|urlencode }}" target="_blank"> <i class="twitter icon"></i></a>
+                <a id="copy{{item.pk}}" class="twitter-copy" data-clipboard-target="#copy_target{{item.pk}}"><i class="copy icon"></i></a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    </div>
+</div>
+<div class="ui tab segment" data-tab="second" style="margin: 0;border: 0;">
+    <div class="twitter__container">
+    <div class="twitter__contents">
+    {% for item in templates|dictsortreversed:"create_date" %}
+    <div class="twitter__block">
+        <figure>
+            <a href="{% url 'accounts:profile' item.author %}"><img src="{{ item.author.icon_url }}" /></a>
+        </figure>
+        <div class="twitter__block-text">
+            <div class="name">{{ item.name }}<span class="name_reply">by @{{ item.author }}</span></div>
+            <div class="date">{{ item.create_date|naturaltime }}</div>
+            <div class="text">
+                <span id="copy_target{{item.pk}}">{{ item.content|linebreaksbr }}</span>
+                <div style="margin-top: 8px;">
+                    <span style="color:#1c95e0; margin-top: 20px;">
+                        {% for ht in item.hashtag.all %}
+                            {{ ht.name }}&ensp;
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+            <div class="twitter__icon">
+                {% if request_user.bukuma.all|length == 0 %}
+                    <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                        <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                            id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                    </a>
+                {% else %}
+                {% set isBreak = False %}
+                {% for b in user.bukuma.all %}
+                {% if b.pk == item.pk %}
+                <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                    <span id="bukuma_icon{{item.pk}}" class="on"><i class="bookmark icon"></i></span><span
+                        id="bukuma_count{{item.pk}}" class="on">{{ item.customuser_set.all|length }}</span>
+                </a>
+                {% set isBreak = True %}
+                {% elif forloop.last %}
+                {% if not isBreak %}
+                <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                    <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                        id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                </a>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+                <a class="twitter-loop" href="https://twitter.com/share?url=&hashtags=&text={{ item.content|urlencode }}"> <i class="twitter icon"></i></a>
+                <a id="copy{{item.pk}}" class="twitter-copy"><i class="copy icon"></i></a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/myscript.js' %}"></script>
+{% endblock %}

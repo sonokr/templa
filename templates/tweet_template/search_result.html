@@ -1,0 +1,105 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load humanize %} 
+{% load utility %}
+
+{% block page_title %}Search Result - てんぷら{% endblock %} 
+
+{% block extra_css %}
+{% endblock %} 
+
+{% block content %}
+<div
+  class="ui segment"
+  style="margin: 0px;border: 0px;"
+>
+  <form id="form" action="{% url 'tweet_template:search' %}" method="GET">
+    <div class="ui action fluid input">
+            <input type="text" name="query" placeholder="Search...">
+            <button type="submit" class="ui icon button">
+            <i class="search icon"></i>
+            </button>
+    </div>
+  </form>
+  <h2 class="ui header">
+    <div class="sub header">検索ワード: {{ q_word }}</div>
+  </h2>
+  <div class="twitter__container">
+    <div class="twitter__contents">
+      {% if object_list|length == 0 %}
+        検索結果はありませんでした
+      {% else %}
+      {% for item in object_list|dictsortreversed:"create_date" %}
+      <div class="twitter__block">
+        <figure>
+          <img src="{{ item.author.icon_url }}" />
+        </figure>
+        <div class="twitter__block-text">
+          <div class="name">
+            {{ item.name }}<span class="name_reply">@{{ item.author }}</span>
+          </div>
+          <div class="date">{{ item.create_date }}</div>
+          <div class="text">
+            {{ item.content|linebreaksbr }}
+            <div style="margin-top: 8px;">
+                    <span style="color:#1c95e0; margin-top: 20px;">
+                        {% for ht in item.hashtag.all %}
+                            {{ ht.name }}&ensp;
+                        {% endfor %}
+                    </span>
+                </div>
+          </div>
+          <div class="twitter__icon">
+            {% set isBreak = False %}
+              {% if user.bukuma.all|length == 0 %}
+                {% for b in user.bukuma.all %}
+                  <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                      <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                          id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                  </a>
+                {% endfor %}
+              {% else %}
+                {% for b in user.bukuma.all %}
+                  {% if b.pk == item.pk %}
+                    <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                        <span id="bukuma_icon{{item.pk}}" class="on"><i class="bookmark icon"></i></span><span
+                            id="bukuma_count{{item.pk}}" class="on">{{ item.customuser_set.all|length }}</span>
+                    </a>
+                    {% set isBreak = True %}
+                  {% elif forloop.last %}
+                    {% if not isBreak %}
+                      <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                          <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                              id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+                      </a>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}            
+            <a
+              class="twitter-loop"
+              href="https://twitter.com/share?url=_&hashtags=_&text={{ item.content|urlencode }}"
+              target="_blank"
+            >
+              <i class="twitter icon"></i
+            ></a>
+            <a
+              id="tdelete"
+              class="twitter-heart delete-modal-button"
+              href="{% url 'tweet_template:t_delete' item.pk %}"
+            >
+              <i class="trash alternate icon"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} 
+
+{% block extra_js %}
+<script src="{% static 'js/myscript.js' %}"></script>
+{% endblock %}

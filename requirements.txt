@@ -1,0 +1,8 @@
+Django==3.0.3
+psycopg2
+gunicorn
+django-heroku
+dj-database-url
+whitenoise
+django-allauth
+social-auth-app-django

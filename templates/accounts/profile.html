@@ -1,0 +1,231 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load humanize %} 
+{% load utility %}
+
+{% block page_title %}Profile - てんぷら{% endblock %} 
+
+{% block extra_css %}
+<link href="{% static 'css/twitter_like_profile.css' %}" rel="stylesheet" />
+{% endblock %} 
+
+{% block content %}
+<div class="twPc-div">
+  <a class="twPc-bg twPc-block"></a>
+
+  <div>
+    <div class="twPc-button">
+      <button
+        class="black compact ui button"
+        id="t_create"
+        style="background-color: rgba(0,0,0,0.7);"
+      >
+        <span style="color: #fff;">新規作成</span>
+      </button>
+    </div>
+
+    {% if request.user.username == request_user.username %}
+    <button
+      onclick="location.href='{% url 'accounts:settings' %}'" 
+      class="black basic right floated compact ui button"
+      style="opacity: 90%; margin: 9px 14px;"
+    >
+      <span>　設定　</span>
+    </button>
+    {% endif %}
+
+    <a
+      title="{{ request_user.username }}"
+      href="https://twitter.com/{{ request_user.username }}"
+      class="twPc-avatarLink"
+    >
+      <img
+        alt="{{ request_user.username }}"
+        src="{{ request_user.icon_url }}"
+        class="twPc-avatarImg"
+      />
+    </a>
+
+    <div class="twPc-divUser">
+      <div class="twPc-divName">
+        <a href="https://twitter.com/{{ request_user.username }}">{{ request_user.first_name }}</a>
+      </div>
+      <span>
+        <a href="https://twitter.com/{{ request_user.username }}">@<span>{{ request_user.username }}</span></a>
+      </span>
+    </div>
+
+    <div style="margin: 20px;">
+      {{ request_user.description }}
+    </div>
+  </div>
+</div>
+
+<div style="background: #fff;">
+  <div class="ui blue two item secondary pointing menu">
+    <a class="active item" data-tab="first">
+      テンプレート
+    </a>
+    <a class="item" data-tab="second">
+      ブクマ
+    </a>
+  </div>
+</div>
+<div
+  class="ui tab segment active"
+  data-tab="first"
+  style="margin: 0px;border: 0px;"
+>
+  <div class="twitter__container">
+    <div class="twitter__contents">
+      {% if request_user.author.all|length == 0 %}
+        まだなにもないよっ！
+      {% else %}
+      {% for item in request_user.author.all|dictsortreversed:"create_date" %}
+      <div class="twitter__block">
+        <figure>
+          <a href="{% url 'accounts:profile' item.author %}"><img src="{{ item.author.icon_url }}" /></a>
+          <!-- <img src="{{ item.create_date }}" /> -->
+        </figure>
+        <div class="twitter__block-text">
+          <div class="name">{{ item.name }}<span class="name_reply">by @{{ item.author }}</span></div>
+          <div class="date">{{ item.create_date|naturaltime }}</div>
+          <div class="text">
+            <span id="copy_target{{ item.pk }}">{{ item.content|linebreaksbr }}</span>
+            <div style="margin-top: 8px;">
+                    <span style="color:#1c95e0; margin-top: 20px;">
+                        {% for ht in item.hashtag.all %}
+                            {{ ht.name }}&ensp;
+                        {% endfor %}
+                    </span>
+                </div>
+          </div>
+          <div class="twitter__icon">
+            {% set isBreak = False %}
+            {% if request_user.bukuma.all|length == 0 %}
+              <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                  <span id="bukuma_icon{{item.pk}}"><i class="bookmark icon"></i></span><span
+                      id="bukuma_count{{item.pk}}">{{ item.customuser_set.all|length }}</span>
+              </a>
+            {% else %}
+              {% for b in user.bukuma.all %}
+                {% if b.pk == item.pk %}
+                  <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                      <span id="bukuma_icon{{item.pk}}" class="on">
+                        <i class="bookmark icon"></i>
+                      </span>
+                      <span id="bukuma_count{{item.pk}}" class="on">
+                        {{ item.customuser_set.all|length }}
+                      </span>
+                  </a>
+                  {% set isBreak = True %}
+                {% elif forloop.last %}
+                  {% if not isBreak %}
+                    <a id="bukuma{{item.pk}}" href="{% url 'accounts:abukuma' item.pk %}" class="twitter-heart">
+                        <span id="bukuma_icon{{item.pk}}">
+                          <i class="bookmark icon"></i>
+                        </span>
+                        <span id="bukuma_count{{item.pk}}">
+                          {{ item.customuser_set.all|length }}
+                        </span>
+                    </a>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}            
+            <a
+              class="twitter-loop"
+              href="https://twitter.com/share?url=_&hashtags=_&text={{ item.content|urlencode }}"
+              target="_blank"
+            ><i class="twitter icon"></i></a>
+            <a id="copy{{item.pk}}" class="twitter-copy" data-clipboard-target="#copy_target{{item.pk}}"><i class="copy icon"></i></a>
+            <a
+              id="tdelete"
+              class="twitter-heart delete-modal-button"
+              href="{% url 'tweet_template:t_delete' item.pk %}"
+            ><i class="trash alternate icon"></i></a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="ui tab segment" data-tab="second" style="margin: 0px;border: 0px;">
+  <div class="twitter__container">
+    <div class="twitter__contents">
+      {% for item in templates %}
+      <div class="twitter__block">
+        <figure>
+          <a href="{% url 'accounts:profile' item.author %}"><img src="{{ item.author.icon_url }}" /></a>
+        </figure>
+        <div class="twitter__block-text">
+          <div class="name">
+            {{ item.name }}<span class="name_reply">by @{{ item.author }}</span>
+          </div>
+          <div class="date">{{ item.create_date|naturaltime }}</div>
+          <div class="text">
+            <span id="copy_target{{ item.pk }}">{{ item.content|linebreaksbr }}</span>
+            <div style="margin-top: 8px;">
+                    <span style="color:#1c95e0; margin-top: 20px;">
+                        {% for ht in item.hashtag.all %}
+                            {{ ht.name }}&ensp;
+                        {% endfor %}
+                    </span>
+                </div>
+          </div>
+          <div class="twitter__icon">
+            <a
+              id="bukuma{{item.pk}}"
+              href="{% url 'accounts:abukuma' item.pk %}"
+              class="twitter-heart"
+            >
+              <span id="bukuma_icon{{item.pk}}" class="on"
+                ><i class="bookmark icon"></i
+              ></span>
+              <span id="bukuma_count{{item.pk}}" class="on"
+                >{{ item.customuser_set.all|length }}</span
+              ></a
+            >
+            <a
+              class="twitter-loop"
+              href="https://twitter.com/share?url=_&hashtags=_&text={{ item.content|urlencode }}"
+              target="_blank"
+            >
+              <i class="twitter icon"></i
+            ></a>
+            <a id="copy{{item.pk}}" class="twitter-copy" data-clipboard-target="#copy_target{{item.pk}}"><i class="copy icon"></i></a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %} 
+
+{% block extra_js %}
+<script>
+  const deleteConfirmButton = document.getElementById('confirm_delete');
+  const deleteCancelButton = document.getElementById('delete-cancel-button');
+  const deleteModalButtons = document.getElementsByClassName(
+    'delete-modal-button'
+  );
+
+  for (const button of deleteModalButtons) {
+    button.addEventListener('click', () => {
+      event.preventDefault();
+      $('.tdelete').modal('show');
+      deleteConfirmButton.href = button.href;
+      console.log(deleteConfirmButton.href);
+    });
+  }
+
+  $('.tdelete').modal({
+    closable: true
+  });
+</script>
+<script src="{% static 'js/myscript.js' %}"></script>
+{% endblock %}

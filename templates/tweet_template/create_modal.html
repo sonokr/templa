@@ -1,0 +1,38 @@
+<div class="ui modal tcreate">
+  <i class="close icon"></i>
+  <div class="header">
+    新規作成
+  </div>
+  <form action="" method="post" class="ui form">
+    <div>
+      {% for field in form %}
+      <div class="field{% if field.errors %} error{% endif %}" style="margin: 10px 10px;">
+        {# --- 入力フィールド --- #}
+        <div class="ui input{% if field.errors %} error{% endif %}">
+          {{ field }}
+        </div>
+        {# --- 入力フィールドごとのエラーメッセージ（最初のエラーのみを表示） --- #} 
+        {% if field.errors %}
+          <p class="red message">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="field" style="margin: 10px 10px;">
+        ハッシュタグは，#(半角シャープ)から始まる文字列です．複数設定する場合は，スペースで区切ってください．
+        <div class="ui input">
+          <input type="text" name="hashtag" placeholder="ハッシュタグ" maxlength="200">
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      {% csrf_token %}
+      <button type class="ui black deny button">
+        キャンセル
+      </button>
+      <button type="submit" class="ui positive right labeled icon button">
+        作成
+        <i class="checkmark icon"></i>
+      </button>
+    </div>
+  </form>
+</div>
